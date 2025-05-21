@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Post, Param } from "@nestjs/common";
 import { ReservationService } from "./reservations.service";
 import { Reservation } from "./entities/reservation.entity";
 
@@ -19,5 +19,10 @@ export class ReservationsController {
     @Post('/reserve-room')
     async reserveRoom(@Body() data: any) {
         return this.reservationsService.reserveRoom(data);
+    }
+
+    @Delete(':id')
+    remove(@Param('id') id:number): Promise<void> {
+        return this.reservationsService.remove(id);
     }
 }
