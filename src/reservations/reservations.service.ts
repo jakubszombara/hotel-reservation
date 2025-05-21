@@ -38,4 +38,8 @@ export class ReservationService {
         const reservation = this.reservationsRepository.create(data);
         return this.reservationsRepository.save(reservation);
     }
+
+    async remove(id: number): Promise<void> {
+        await this.reservationsRepository.delete(id);
+    }
 }
