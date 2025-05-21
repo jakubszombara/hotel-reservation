@@ -17,3 +17,4 @@ create(@Body() guestData: Partial<Guest>): Promise<Guest> {
     return this.guestsService.create(guestData);
 }
 }
+// TEST: ten komentarz pochodzi z gałęzi feature/test-branch
