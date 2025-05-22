@@ -1,20 +1,19 @@
-import { Reservation } from 'src/reservations/entities/reservation.entity';
-import {Entity , PrimaryGeneratedColumn, Column, OneToMany} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
-@Entity() 
+@Entity()
 export class Room {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    number: string;
+  @Column({ type: String })
+  number: string;
 
-    @Column()
-    capacity: number;
+  @Column()
+  capacity: number;
 
-    @Column()
-    type: string;
-
-    @OneToMany(() => Reservation, reservation => reservation.room)
-    reservations:Reservation[];
+  @Column()
+  type: string;
 }
+/*
+Poczytaj co daje sie w srodku () od @Column
+*/

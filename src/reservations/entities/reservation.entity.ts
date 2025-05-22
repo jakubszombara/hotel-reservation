@@ -1,22 +1,32 @@
-import { Guest } from "src/guests/entities/guest.entity";
-import { Room } from "src/rooms/entities/room.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Guest } from 'src/guests/entities/guest.entity';
+import { Room } from 'src/rooms/entities/room.entity';
+import {
+  Column,
+  Entity,
+  ForeignKey,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Reservation {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
+  @ForeignKey(() => Guest)
+  guestId: number;
 
-    @ManyToOne(() => Guest)
-    guest: Guest;
+  @ForeignKey(() => Room)
+  roomId: number;
 
-    @ManyToOne(() => Room)
-    room: Room;
+  @Column()
+  dateFrom: string;
 
-    @Column()
-    dateFrom: string;
-
-    @Column()
-    dateTo: string;
+  @Column()
+  dateTo: string;
 }
+
+/*
+czym jest @ForeignKey? i PrimaryKey?
+o co chodzi w join table?
+*/
