@@ -8,17 +8,17 @@ import { ReservationsModule } from './reservations/reservations.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: 'db',
       port: 5432,
       username: 'postgres',
       password: 'password',
       database: 'hotel',
       autoLoadEntities: true,
-      synchronize: false,
+      synchronize: true,
     }),
     RoomsModule,
-    GuestModule,
-    ReservationsModule,
+    // GuestModule,
+    // ReservationsModule,
   ],
 })
 export class AppModule {}
