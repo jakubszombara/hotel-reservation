@@ -1,17 +1,18 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { RoomType } from '../enums/type.enum';
 
 @Entity()
 export class Room {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: String })
-  number: string;
+  @Column({ type: 'varchar'})
+  roomNumber: string;
 
   @Column()
   capacity: number;
 
-  @Column()
+  @Column({ type: 'enum', enum: RoomType })
   type: string;
 }
 /*
