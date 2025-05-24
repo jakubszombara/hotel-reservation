@@ -1,73 +1,95 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Room } from './entities/room.entity';
-import { CreateRoomRequest } from './dto/create-room.dto';
+import { CreateRoomRequest, CreateRoomResponse } from './dto/create-room.dto';
+import { Pagination} from './dto/pagination.dto';
+import { RoomFilter } from './dto/roomFilter.dto';
+import { PaginatedResponse } from './interfaces/paginatedResponse';
+import { createPagination } from './utils/pagination.utils';
+import { plainToInstance } from 'class-transformer';
+
 
 @Injectable()
 export class RoomsService {
-  constructor(
+  public constructor(
     @InjectRepository(Room)
     private roomsRespository: Repository<Room>,
   ) {}
 
-  findAll(filter: { type?: string; capacity?: number }): Promise<Room[]> {
-    const where: any = {};
-
-    if (filter.type) {
-      where.type = filter.type;
-    }
-
-    if (filter.capacity) {
-      where.capacity = filter.capacity;
-    }
-
-    return this.roomsRespository.find({
-      where,
-      relations: ['reservations'],
+  public async findAll(pagination: Pagination): Promise<PaginatedResponse<Room>> {
+    const [items, total] = await this.roomsRespository.findAndCount({
+      skip: (pagination.page - 1) * pagination.limit,
+      take: pagination.limit,
     });
+
+    return createPagination(items, total, pagination.page, pagination.limit);
   }
 
-  async create(roomData: CreateRoomRequest): Promise<Room> {
-    console.log(`roomData`, roomData);
-
+  public async create(roomData: CreateRoomRequest): Promise<CreateRoomResponse> {
     const room = this.roomsRespository.create({
-      number: roomData.number,
+      roomNumber: roomData.roomNumber,
       capacity: roomData.capacity,
       type: roomData.type,
     });
 
-    const result = await this.roomsRespository.save(room);
+    const savedRoom = await this.roomsRespository.save(room);
 
-    // console.log(`Udalo mi sie stworzyc pokoj o id: ${result[0].id}`);
-
-    return result;
+    return plainToInstance(CreateRoomResponse, savedRoom);
+    
   }
 
-  async findFiltered(
-    type?: string,
-    availableFrom?: string,
-    availableTo?: string,
-  ): Promise<Room[]> {
+  public async findFiltered(
+    filter: RoomFilter,
+    pagination: Pagination,
+  ): Promise<PaginatedResponse<Room>> {
     const query = this.roomsRespository.createQueryBuilder('room');
 
-    if (type) {
-      query.andWhere('room.type = :type', { type });
+    if (filter.type) {
+      query.andWhere('room.type = :type', { type: filter.type });
     }
 
-    if (availableFrom && availableTo) {
+    if (filter.availableFrom && filter.availableTo) {
       query.leftJoin('room.reservations', 'reservation').andWhere(
         `(reservation.id IS NULL OR 
                 reservation.dateTo < :availableFrom OR
                 reservation.dateFrom > :availableTo
                 )`,
         {
-          availableFrom,
-          availableTo,
+          availableFrom: filter.availableFrom,
+          availableTo: filter.availableTo,
         },
       );
     }
 
-    return query.getMany();
+    const total = await query.getCount();
+    
+    query
+      .skip((pagination.page - 1) * pagination.limit)
+      .take(pagination.limit);
+
+    const items = await query.getMany();
+    
+    return createPagination(items, total, pagination.page, pagination.limit);
+  }
+
+  public async findRoomById(id: number): Promise<Room> {
+    const room = await this.roomsRespository.findOne({
+      where: { id },
+    });
+
+    if (!room) {
+      throw new NotFoundException(`Room with ID ${id} not found!`);
+    }
+
+    return room;
+  }
+
+  public async deleteRoom(id: number): Promise<void> {
+    const result = await this.roomsRespository.delete(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`Room with ID ${id} not found!`);
+    }
   }
 }
