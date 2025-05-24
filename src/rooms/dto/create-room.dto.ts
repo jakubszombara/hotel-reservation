@@ -4,7 +4,7 @@ import { RoomType } from '../enums/type.enum';
 export class CreateRoomRequest {
   @IsString()
   @IsNotEmpty()
-  public number: string;
+  public roomNumber: string;
 
   @IsNumber()
   @IsNotEmpty()
@@ -12,11 +12,25 @@ export class CreateRoomRequest {
 
   @IsEnum(RoomType)
   @IsNotEmpty()
-  public type: string;
+  public type: RoomType;
 }
 
 export class CreateRoomResponse {
-  //
+  @IsNumber()
+  @IsNotEmpty()
+  public id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  public roomNumber: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  public capacity: number;
+
+  @IsEnum(RoomType)
+  @IsNotEmpty()
+  public type: RoomType;
 }
 
 // popatrz sobie co sie dzieje kiedy masz te @IsSting() a kiedy tego nie masz
